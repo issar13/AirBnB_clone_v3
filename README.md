@@ -1,1 +1,5 @@
-#AIRBNB CLONE 2
+# AIRBNB CLONE 2
+
+## AUTHORS
+-Issa Suleiman
+-Mukhtar 

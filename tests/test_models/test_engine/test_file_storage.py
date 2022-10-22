@@ -1,91 +1,86 @@
 #!/usr/bin/python3
-""" Module for testing file storage"""
-import unittest
-import models
+"""
+Contains the TestFileStorageDocs classes
+"""
+
+from datetime import datetime
 import inspect
-import time
-import json
-from unittest import mock
-import os
+import models
 from models.engine import file_storage
-from models.city import City
 from models.amenity import Amenity
-from models.user import User
+from models.base_model import BaseModel
+from models.city import City
+from models.place import Place
 from models.review import Review
 from models.state import State
-from models.place import Place
-from models.base_model import BaseModel
-from models import storage
-import pep8 as pycodestyle
-
-Model = file_storage.FileStorage
+from models.user import User
+import json
+import os
+import pep8
+import unittest
 FileStorage = file_storage.FileStorage
-path1 = "models/engine/file_storage.py"
-path2 = "tests/test_models/test_engine/test_file_storage.py"
-module_doc = file_storage.FileStorage.__doc__
-
-classes = {"Amenity": Amenity, "BaseModel": BaseModel, "Review": Review,
-           "City": City, "User": User, "State": State, "Place": Place}
+classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
+           "Place": Place, "Review": Review, "State": State, "User": User}
 
 
-class TestBaseModelDocs(unittest.TestCase):
-    """Test to check behaviors"""
-
+class TestFileStorageDocs(unittest.TestCase):
+    """Tests to check the documentation and style of FileStorage class"""
     @classmethod
-    def setUpClass(self):
-        """setting up tests"""
-        self.base_funcs = inspect.getmembers(BaseModel, inspect.isfunction)
+    def setUpClass(cls):
+        """Set up for the doc tests"""
+        cls.fs_f = inspect.getmembers(FileStorage, inspect.isfunction)
 
-    def test_pep8(self):
-        """Testing pep8"""
-        for path in [path1,
-                     path2]:
-            with self.subTest(path=path):
-                errors = pycodestyle.Checker(path).check_all()
-                self.assertEqual(errors, 0)
+    def test_pep8_conformance_file_storage(self):
+        """Test that models/engine/file_storage.py conforms to PEP8."""
+        pep8s = pep8.StyleGuide(quiet=True)
+        result = pep8s.check_files(['models/engine/file_storage.py'])
+        self.assertEqual(result.total_errors, 0,
+                         "Found code style errors (and warnings).")
 
-    def test_module_docstring(self):
-        """Test module docstring"""
-        self.assertIsNot(module_doc, None,
-                         "base_model.py needs a docstring")
-        self.assertTrue(len(module_doc) > 1,
-                        "base_model.py needs a docstring")
+    def test_pep8_conformance_test_file_storage(self):
+        """Test tests/test_models/test_file_storage.py conforms to PEP8."""
+        pep8s = pep8.StyleGuide(quiet=True)
+        result = pep8s.check_files(['tests/test_models/test_engine/\
+test_file_storage.py'])
+        self.assertEqual(result.total_errors, 0,
+                         "Found code style errors (and warnings).")
 
-    def test_class_docstring(self):
-        """Test classes doctring"""
-        self.assertIsNot(BaseModel.__doc__, None,
-                         "BaseModel class needs a docstring")
-        self.assertTrue(len(BaseModel.__doc__) >= 1,
-                        "BaseModel class needs a docstring")
+    def test_file_storage_module_docstring(self):
+        """Test for the file_storage.py module docstring"""
+        self.assertIsNot(file_storage.__doc__, None,
+                         "file_storage.py needs a docstring")
+        self.assertTrue(len(file_storage.__doc__) >= 1,
+                        "file_storage.py needs a docstring")
 
-    def test_func_docstrings(self):
-        """test func dostrings"""
-        for func in self.base_funcs:
-            with self.subTest(function=func):
-                self.assertIsNot(
-                    func[1].__doc__,
-                    None,
-                    "{:s} method needs a docstring".format(func[0])
-                )
-                self.assertTrue(
-                    len(func[1].__doc__) > 1,
-                    "{:s} method needs a docstring".format(func[0])
-                )
+    def test_file_storage_class_docstring(self):
+        """Test for the FileStorage class docstring"""
+        self.assertIsNot(FileStorage.__doc__, None,
+                         "FileStorage class needs a docstring")
+        self.assertTrue(len(FileStorage.__doc__) >= 1,
+                        "FileStorage class needs a docstring")
+
+    def test_fs_func_docstrings(self):
+        """Test for the presence of docstrings in FileStorage methods"""
+        for func in self.fs_f:
+            self.assertIsNot(func[1].__doc__, None,
+                             "{:s} method needs a docstring".format(func[0]))
+            self.assertTrue(len(func[1].__doc__) >= 1,
+                            "{:s} method needs a docstring".format(func[0]))
 
 
-@unittest.skipIf(models.is_db == 'db', 'Not testing Dbstorage')
-class Test_FileStorage(unittest.TestCase):
-    """Testing proper behavrious"""
-    def dic_tests(self):
-        """Testing that FileStorage_objects returns properly"""
-        f_storage = FileStorage()
-        dic = f_storage.all()
-        self.assertEqual(type(dic, dict))
-        self.assertIs(dic, f_storage.__Filestorage.__objects)
+class TestFileStorage(unittest.TestCase):
+    """Test the FileStorage class"""
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_all_returns_dict(self):
+        """Test that all returns the FileStorage.__objects attr"""
+        storage = FileStorage()
+        new_dict = storage.all()
+        self.assertEqual(type(new_dict), dict)
+        self.assertIs(new_dict, storage._FileStorage__objects)
 
-    @unittest.skipIf(models.is_db == 'db', 'Not testing Dbstorage')
-    def test_new_method(self):
-        """testing that  new method saves on __objects attr"""
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_new(self):
+        """test that new adds an object to the FileStorage.__objects attr"""
         storage = FileStorage()
         save = FileStorage._FileStorage__objects
         FileStorage._FileStorage__objects = {}
@@ -99,10 +94,9 @@ class Test_FileStorage(unittest.TestCase):
                 self.assertEqual(test_dict, storage._FileStorage__objects)
         FileStorage._FileStorage__objects = save
 
-    @unittest.skipIf(models.is_db == 'db', 'Not testing Dbstorage')
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_save(self):
-        """Testing proper behaviour saving in file.json"""
-        os.remove("file.json")
+        """Test that save properly saves objects to file.json"""
         storage = FileStorage()
         new_dict = {}
         for key, value in classes.items():
@@ -119,3 +113,18 @@ class Test_FileStorage(unittest.TestCase):
         with open("file.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_get(self):
+        """Test that get properly returns a requested object"""
+        storage = FileStorage()
+        user = User(name="User1")
+        user.save()
+        self.assertEqual(user, storage.get("User", user.id))
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_count(self):
+        """Test that count properly counts all objects"""
+        storage = FileStorage()
+        nobjs = len(storage._FileStorage__objects)
+        self.assertEqual(nobjs, storage.count())
