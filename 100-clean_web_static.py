@@ -7,7 +7,7 @@ from web_static content folder
 from fabric.api import env, local, put, run
 from datetime import datetime
 from os.path import exists, isdir
-env.hosts = ['44.210.103.220' ,'35.168.59.18']
+
 
 
 
